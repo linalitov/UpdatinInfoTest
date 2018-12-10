@@ -105,8 +105,6 @@ public class MyStepdefs {
         Post myUser1 = gson.fromJson(response.getBody().toString(), Post.class);
         String myUserString = myUser.name+myUser.username+myUser.address+myUser.email+myUser.phone;
         String myUser1String = myUser1.name+myUser1.username+myUser1.address+myUser1.email+myUser1.phone;
-        System.out.println(myUserString);
-        System.out.println(myUser1String);
         Assert.assertNotEquals(myUserString,myUser1String);
     }
 
