@@ -1,6 +1,6 @@
 package Steps;
 
-public class Post {
+public class User {
     public int id;
     public String name;
     public String username;
@@ -9,7 +9,7 @@ public class Post {
     public String phone;
 
 
-    public Post (int id, String name, String username, String email, String address, String phone) {
+    public User (String name, String username, String email, String address, String phone) {
         this.id = id;
         this.name = name;
         this.username = username;
