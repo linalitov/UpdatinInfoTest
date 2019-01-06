@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class MyStepdefs {
     WebDriver driver;
     UpdateForm updateForm;
-    Post myUser;
+    User myUser;
+    Gson gson = new Gson();
 
     @Before ()
     public void setup() {
@@ -35,7 +36,7 @@ public class MyStepdefs {
 
     @Given("^User is created$")
     public void userIsCreated() throws Throwable {
-        Post user1 = new Post(23,"test","test","test","test","test");
+        User user1 = new User("test","test","test","test","test");
 
 
         GsonBuilder builder = new GsonBuilder();
@@ -55,8 +56,7 @@ public class MyStepdefs {
         HttpResponse<JsonNode> response
                 = Unirest.get("https://seleniumclass.000webhostapp.com/api/v1/users/23").asJson();
 
-        Gson gson = new Gson();
-        myUser = gson.fromJson(response.getBody().toString(), Post.class);
+        myUser = gson.fromJson(response.getBody().toString(), User.class);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get("https://seleniumclass.000webhostapp.com/web/index.php?r=users%2Fupdate&id="+myUser.id);
