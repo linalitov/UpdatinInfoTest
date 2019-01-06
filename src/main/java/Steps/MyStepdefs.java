@@ -26,6 +26,7 @@ public class MyStepdefs {
     UpdateForm updateForm;
     User myUser;
     Gson gson = new Gson();
+    GsonBuilder builder = new GsonBuilder();
 
     @Before ()
     public void setup() {
@@ -36,27 +37,28 @@ public class MyStepdefs {
 
     @Given("^User is created$")
     public void userIsCreated() throws Throwable {
-        User user1 = new User("test","test","test","test","test");
+         long currentTimestamp = System.currentTimeMillis();
+        User user1 = new User("AUT_name_" + currentTimestamp,"AUT_username_" + currentTimestamp,
+	                "AUT_email_" + currentTimestamp,
+	                "AUT_address_" + currentTimestamp,
+	                ""+currentTimestamp
+	        );
 
 
-        GsonBuilder builder = new GsonBuilder();
+        
         Gson gson = builder.create();
 
         String jsonInString = gson.toJson(user1);
 
         HttpResponse<JsonNode> response
                 = Unirest.post("https://seleniumclass.000webhostapp.com/api/v1/users")
-                .body(jsonInString)
-                .asJson();
-
+               .header("Content-Type", "application/json").body(jsonInString)
+	                .asJson();
+        myUser = gson.fromJson(response.getBody().toString(), User.class);
     }
 
     @Given("^User navigates to Update info page$")
     public void userNavigatesToUpdateInfoPage() throws Throwable {
-        HttpResponse<JsonNode> response
-                = Unirest.get("https://seleniumclass.000webhostapp.com/api/v1/users/23").asJson();
-
-        myUser = gson.fromJson(response.getBody().toString(), User.class);
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get("https://seleniumclass.000webhostapp.com/web/index.php?r=users%2Fupdate&id="+myUser.id);
@@ -92,20 +94,22 @@ public class MyStepdefs {
     public void userClicksSave() throws Throwable {
        updateForm.saveButtonClick();
         WebDriverWait wait = new WebDriverWait(driver,10);
-        wait.until(ExpectedConditions.urlToBe("https://seleniumclass.000webhostapp.com/web/index.php?r=users%2Fview&id=23"));
+        wait.until(ExpectedConditions.urlToBe("https://seleniumclass.000webhostapp.com/web/index.php?r=users%2Fview&id="+myUser.id));
     }
 
     @Then("^Data changed$")
     public void dataChanged() throws Throwable {
     driver.manage().timeouts().implicitlyWait(10,TimeUnit.SECONDS);
         HttpResponse<JsonNode> response
-                = Unirest.get("https://seleniumclass.000webhostapp.com/api/v1/users/23").asJson();
+                = Unirest.get("https://seleniumclass.000webhostapp.com/api/v1/users/"+myUser.id).asJson();
 
         Gson gson = new Gson();
-        Post myUser1 = gson.fromJson(response.getBody().toString(), Post.class);
+        User myUser1 = gson.fromJson(response.getBody().toString(), User.class);
         String myUserString = myUser.name+myUser.username+myUser.address+myUser.email+myUser.phone;
         String myUser1String = myUser1.name+myUser1.username+myUser1.address+myUser1.email+myUser1.phone;
         Assert.assertNotEquals(myUserString,myUser1String);
+        Assert.assertNotEquals(myUser.name,myUser1.name);
+        Assert.assertNotEquals(myUser.username,myUser1.username);
     }
 
     @After()
